@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "training-service"
+version = "0.1.0"
+description = "Тестовое задание."
+authors = ["Sergey Alhimenko"]
+readme = "README.md"
+packages = [{include = "training_service"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Django = "^4.1.7"
+djangorestframework = "^3.14.0"
+
+
+[tool.poetry.group.formatter.dependencies]
+black = "^23.1.0"
+
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
