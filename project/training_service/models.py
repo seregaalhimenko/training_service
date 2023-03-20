@@ -62,3 +62,9 @@ class ResponseHistory(models.Model):  # AnswerChoice_and_User
         on_delete=models.CASCADE,
         related_name="response_history",
     )
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name="response_history",
+    )
+    # добвать уникальность на пару
