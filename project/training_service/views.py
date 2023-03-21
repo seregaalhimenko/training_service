@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,6 +28,9 @@ class QuestionController(APIView):
         question = get_object_or_404(models.Question, pk=question_id)
         if self.__get_history_user_by_question(question):  # docs none
             return Response({"details": "you have already answered this question"})
+
+        if question.check_correct_answers():
+            return Response({"answers": _("The question has no right answers")})
 
         request_list_answers = question.answers.filter(pk__in=request.data.get("ids"))
         request_answers_count = self.__get_count_by_correct_answers(
