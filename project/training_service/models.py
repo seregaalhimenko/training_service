@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from .comfig import CREATE_CORRECT_ANSWERS_FIRST
@@ -36,10 +37,30 @@ class Question(models.Model):
         related_name="questions",
     )
 
+    @classmethod
+    def get_by_id(cls, id: int):
+        return get_object_or_404(cls, pk=id)
+
     def check_correct_answers(self):
         if self.answers.filter(correct=True).count() == 0:
             return False
         return True
+
+    def get_answers_by_ids(self, ids: list[int]):
+        return self.answers.filter(pk__in=ids)
+
+    def create_history(
+        self,
+        answers: list["AnswerChoice"],
+        # question: "Question",
+        user: settings.AUTH_USER_MODEL,
+    ):
+        for answer in answers:
+            ResponseHistory(
+                user=user,
+                answer_choice=answer,
+                question=self,
+            ).save()
 
 
 class AnswerChoice(models.Model):
@@ -90,4 +111,15 @@ class ResponseHistory(models.Model):  # AnswerChoice_and_User
         on_delete=models.CASCADE,
         related_name="response_history",
     )
+
     # добвать уникальность на пару
+    @classmethod
+    def get_history_user_by_question(
+        cls,
+        user: settings.AUTH_USER_MODEL,
+        question: Question,
+    ):
+        return cls.objects.filter(
+            question=question,
+            user=user,
+        )

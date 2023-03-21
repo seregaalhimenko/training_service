@@ -25,18 +25,18 @@ class QuestionController(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, question_id):
-        question = get_object_or_404(models.Question, pk=question_id)
+        # можно убрать логику в отдельную сушьность
+        question = models.Question.get_by_id(question_id)
+
         if self.__get_history_user_by_question(question):  # docs none
             return Response({"details": "you have already answered this question"})
 
         if question.check_correct_answers():
             return Response({"answers": _("The question has no right answers")})
 
-        request_list_answers = question.answers.filter(pk__in=request.data.get("ids"))
-        request_answers_count = self.__get_count_by_correct_answers(
-            correct_answers=request_list_answers
-        )
-        self.__create_answers_user(request_list_answers, question)
+        request_answers = question.get_answers_by_ids(request.data.get("ids"))
+        request_answers_count = self.__get_count_by_correct_answers(request_answers)
+        self.__create_answers_user(request_answers, question)
 
         if request_answers_count == len(request.data.get("ids")):
             return Response({"answer": True})
@@ -48,19 +48,19 @@ class QuestionController(APIView):
         serializer = serializers.CommentSerializer(comment)
         return Response({"answer": False, "comment": serializer.data})
 
-    def __get_count_by_correct_answers(self, correct_answers):
-        return correct_answers.filter(correct=True).count()
+    def __get_count_by_correct_answers(self, answers):
+        return answers.filter(correct=True).count()
 
-    def __get_history_user_by_question(self, question):
-        return models.ResponseHistory.objects.filter(
+    def __get_history_user_by_question(self, question: models.Question):
+        return models.ResponseHistory.get_history_user_by_question(
             question=question,
             user=self.request.user,
         )
 
-    def __create_answers_user(self, request_list_answers, question):
-        for answer in request_list_answers:
-            models.ResponseHistory(
-                user=self.request.user,
-                answer_choice=answer,
-                question=question,
-            ).save()
+    def __create_answers_user(
+        self,
+        request_answers: list[models.AnswerChoice],
+        question: models.Question,
+    ):
+        for answer in request_answers:
+            question.create_history(answer, self.request.user)
