@@ -28,6 +28,16 @@ class Test(models.Model):
     publication_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
 
+    def is_passed(self, user) -> bool:
+        questions_test = self.questions.all()
+        count_questions_test = len(Question.get_valid_questions(questions_test))
+        count_questions_history = ResponseHistory.get_count_question_by_user(user)
+        return count_questions_history == count_questions_test
+
+    @classmethod
+    def get_by_id(cls, id: int):
+        return get_object_or_404(cls, pk=id)
+
 
 class Question(models.Model):
     text = models.CharField(max_length=500)
@@ -46,21 +56,32 @@ class Question(models.Model):
             return False
         return True
 
+    @classmethod
+    def get_valid_questions(cls, queryset) -> tuple["Question"]:
+        return tuple(filter(lambda x: x.check_correct_answers(), queryset))
+
     def get_answers_by_ids(self, ids: list[int]):
         return self.answers.filter(pk__in=ids)
 
     def create_history(
         self,
-        answers: list["AnswerChoice"],
-        # question: "Question",
+        answer: "AnswerChoice",
         user: settings.AUTH_USER_MODEL,
     ):
-        for answer in answers:
-            ResponseHistory(
-                user=user,
-                answer_choice=answer,
-                question=self,
-            ).save()
+        ResponseHistory(
+            user=user,
+            answer_choice=answer,
+            question=self,
+        ).save()
+
+    def get_user_responses(
+        self,
+        user: settings.AUTH_USER_MODEL,
+    ):
+        return self.response_history.filter(user=user)
+
+    def get_answers(self):
+        return self.answers.all()  # ?
 
 
 class AnswerChoice(models.Model):
@@ -112,7 +133,6 @@ class ResponseHistory(models.Model):  # AnswerChoice_and_User
         related_name="response_history",
     )
 
-    # добвать уникальность на пару
     @classmethod
     def get_history_user_by_question(
         cls,
@@ -123,3 +143,10 @@ class ResponseHistory(models.Model):  # AnswerChoice_and_User
             question=question,
             user=user,
         )
+
+    @classmethod
+    def get_count_question_by_user(
+        cls,
+        user: settings.AUTH_USER_MODEL,
+    ):
+        return cls.objects.filter(user=user).values("question").distinct().count()
