@@ -1,16 +1,23 @@
-from django.urls import path
 from rest_framework import routers
 
 from . import views
 
 router = routers.SimpleRouter()
-urlpatterns = [
-    path("questions/<int:question_id>/", views.QuestionController.as_view()),
-]
+
+router.register(
+    r"questions",
+    views.QuestionView,
+    basename="question",
+)
 
 router.register(
     r"topics",
-    views.TopicController,
+    views.TopicView,
     basename="topic",
 )
-urlpatterns += router.urls
+router.register(
+    r"tests",
+    views.TestView,
+    basename="test",
+)
+urlpatterns = router.urls
