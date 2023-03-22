@@ -15,18 +15,32 @@ class QuestionController:
             return {"answers": _("The question has no right answers")}
 
         request_answers = question.get_answers_by_ids(data.get("ids"))
-        request_answers_count = self.__get_count_by_correct_answers(request_answers)
+        db_answers_correct_count = self.__get_count_by_correct_answers(question.answers)
+        request_answers_correct_count = self.__get_count_by_correct_answers(
+            request_answers
+        )
         self.__create_answers_user(user, request_answers, question)
-
-        if request_answers_count == len(data.get("ids")):
+        request_answers_incorrect_count = (
+            len(data.get("ids")) - request_answers_correct_count
+        )
+        if (
+            request_answers_correct_count,
+            request_answers_incorrect_count,
+        ) == (
+            db_answers_correct_count,
+            0,
+        ):
             return {"answer": True}
 
+        comment = self.__get_comment(question)
+        return {"answer": False, "comment": comment}
+
+    def __get_comment(self, question: models.Question):
         try:
             comment = question.comment
         except models.Comment.DoesNotExist:
-            return {"details": "no coments"}
-        serializer = serializers.CommentSerializer(comment)
-        return {"answer": False, "comment": serializer.data}
+            return {"details": "Not found."}
+        return serializers.CommentSerializer(comment).data
 
     def __get_count_by_correct_answers(self, answers):
         return answers.filter(correct=True).count()
