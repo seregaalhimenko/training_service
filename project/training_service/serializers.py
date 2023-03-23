@@ -62,20 +62,15 @@ class ResponseHistorySerializer(serializers.ModelSerializer):
 class ResultQuestionSerializer(serializers.ModelSerializer):
     answers = ResultAnswerSerializer(many=True)
     response_answers = serializers.SerializerMethodField()
+    correct = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Question
-        fields = ["id", "text", "answers", "response_answers"]
+        fields = ["id", "text", "correct", "answers", "response_answers"]
 
     def get_response_answers(self, question):
         answers = [x.answer_choice for x in question.response_history.all()]
         return ResultAnswerSerializer(answers, many=True).data
 
-
-class StatisticsSerializer(serializers.ModelSerializer):
-    user = serializers.ImageField(source="topic.owner.id")
-    questions = ResultQuestionSerializer(many=True)
-
-    class Meta:
-        model = models.Test
-        fields = ["id", "user", "title", "topic", "questions"]
+    def get_correct(self, question):
+        return question.is_correct()

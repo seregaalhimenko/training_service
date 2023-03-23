@@ -15,21 +15,10 @@ class QuestionController:
             return {"answers": _("The question has no right answers")}
 
         request_answers = question.get_answers_by_ids(data.get("ids"))
-        db_answers_correct_count = self.__get_count_by_correct_answers(question.answers)
-        request_answers_correct_count = self.__get_count_by_correct_answers(
-            request_answers
-        )
+
         self.__create_answers_user(user, request_answers, question)
-        request_answers_incorrect_count = (
-            len(data.get("ids")) - request_answers_correct_count
-        )
-        if (
-            request_answers_correct_count,
-            request_answers_incorrect_count,
-        ) == (
-            db_answers_correct_count,
-            0,
-        ):
+
+        if question.is_correct(request_answers):
             return {"answer": True}
 
         comment = self.__get_comment(question)
@@ -41,9 +30,6 @@ class QuestionController:
         except models.Comment.DoesNotExist:
             return {"details": "Not found."}
         return serializers.CommentSerializer(comment).data
-
-    def __get_count_by_correct_answers(self, answers):
-        return answers.filter(correct=True).count()
 
     def __get_history_user_by_question(
         self, user: settings.AUTH_USER_MODEL, question: models.Question
@@ -64,3 +50,26 @@ class QuestionController:
 
 
 question_controller = QuestionController()
+
+
+class StatisticsController:
+    def __call__(self, test, user):
+        questions = test.questions.filter(response_history__user=user).distinct()
+        correct_count = 0
+        for question in questions:
+            if question.is_correct():
+                correct_count += 1
+        incorrect_count = questions.count() - correct_count
+
+        return {
+            "user": user.id,
+            "test": test.id,
+            "questions": serializers.ResultQuestionSerializer(
+                questions, many=True
+            ).data,
+            "correct_count": correct_count,
+            "incorrect_count": incorrect_count,
+        }
+
+
+statistic_controller = StatisticsController()

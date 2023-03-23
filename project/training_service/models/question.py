@@ -48,3 +48,21 @@ class Question(models.Model):
 
     def get_answers(self):
         return self.answers.all()
+
+    def is_correct(self, request_answers=None):
+        request_answers_correct_count = (
+            request_answers.filter(correct=True).count()
+            if request_answers
+            else self.response_history.filter(answer_choice__correct=True).count()
+        )
+        request_answers_count = (
+            len(request_answers) if request_answers else self.response_history.count()
+        )
+        db_answers_correct_count = self.answers.filter(correct=True).count()
+
+        if (
+            request_answers_correct_count,
+            request_answers_count - request_answers_correct_count,
+        ) == (db_answers_correct_count, 0):
+            return True
+        return False
