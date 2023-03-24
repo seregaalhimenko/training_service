@@ -20,7 +20,7 @@ class TopicView(viewsets.ViewSet):
 
 
 class TestView(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     def retrieve(self, request, pk=None):
         test = models.Test.get_by_id(id=pk)
@@ -32,7 +32,7 @@ class TestView(viewsets.ViewSet):
 
 
 class QuestionView(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     def retrieve(self, request, pk=None):
         question = models.Question.get_by_id(id=pk)
