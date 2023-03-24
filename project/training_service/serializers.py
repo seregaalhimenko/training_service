@@ -68,15 +68,15 @@ class ResultQuestionSerializer(serializers.ModelSerializer):
         model = models.Question
         fields = ["id", "text", "correct", "answers", "response_answers"]
 
-    def get_response_answers(self, question):
+    def get_response_answers(self, question: models.Question) -> dict:
         answers = [x.answer_choice for x in question.response_history.all()]
         return ResultAnswerSerializer(answers, many=True).data
 
-    def get_correct(self, question):
+    def get_correct(self, question: models.Question) -> bool:
         return question.is_correct()
 
 
-class StatisticSerializer(serializers.Serializer):
+class StatisticsSerializer(serializers.Serializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
     test = serializers.PrimaryKeyRelatedField(read_only=True)
     questions = ResultQuestionSerializer(many=True)

@@ -14,10 +14,10 @@ class Question(models.Model):
     )
 
     @classmethod
-    def get_by_id(cls, id: int):
+    def get_by_id(cls, id: int) -> "Question":
         return get_object_or_404(cls, pk=id)
 
-    def check_correct_answers(self):
+    def check_correct_answers(self) -> bool:
         if self.answers.filter(correct=True).count() == 0:
             return False
         return True
@@ -26,7 +26,7 @@ class Question(models.Model):
     def get_valid_questions(cls, queryset) -> tuple["Question"]:
         return tuple(filter(lambda x: x.check_correct_answers(), queryset))
 
-    def get_answers_by_ids(self, ids: list[int]):
+    def get_answers_by_ids(self, ids: list[int]) -> models.QuerySet[AnswerChoice]:
         return self.answers.filter(pk__in=ids)
 
     def create_history(
@@ -43,13 +43,16 @@ class Question(models.Model):
     def get_user_responses(
         self,
         user: settings.AUTH_USER_MODEL,
-    ):
+    ) -> models.QuerySet[response_history.ResponseHistory]:
         return self.response_history.filter(user=user)
 
-    def get_answers(self):
+    def get_answers(self) -> models.QuerySet[AnswerChoice]:
         return self.answers.all()
 
-    def is_correct(self, request_answers=None):
+    def is_correct(
+        self,
+        request_answers: models.QuerySet[AnswerChoice] | None = None,
+    ) -> bool:
         request_answers_correct_count = (
             request_answers.filter(correct=True).count()
             if request_answers

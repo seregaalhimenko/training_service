@@ -26,7 +26,7 @@ class TestView(viewsets.ViewSet):
         test = models.Test.get_by_id(id=pk)
         if test.is_passed(request.user):
             return Response(
-                serializers.StatisticSerializer(test.get_statistic(request.user)).data
+                serializers.StatisticsSerializer(test.get_statistics(request.user)).data
             )
         return redirect("topic-detail", pk=test.topic.id)
 

@@ -26,7 +26,7 @@ class ResponseHistory(models.Model):
         cls,
         user: settings.AUTH_USER_MODEL,
         question: "q.Question",
-    ):
+    ) -> models.QuerySet["ResponseHistory"]:
         return cls.objects.filter(
             question=question,
             user=user,
@@ -36,5 +36,5 @@ class ResponseHistory(models.Model):
     def get_count_question_by_user(
         cls,
         user: settings.AUTH_USER_MODEL,
-    ):
+    ) -> int:
         return cls.objects.filter(user=user).values("question").distinct().count()

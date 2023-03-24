@@ -19,18 +19,18 @@ class Test(models.Model):
     update_date = models.DateField(auto_now=True)
 
     @classmethod
-    def get_by_id(cls, id: int):
+    def get_by_id(cls, id: int) -> "Test":
         return get_object_or_404(cls, pk=id)
 
-    def is_passed(self, user) -> bool:
+    def is_passed(self, user: settings.AUTH_USER_MODEL) -> bool:
         questions_test = self.questions.all()
         count_questions_test = len(Question.get_valid_questions(questions_test))
         count_questions_history = ResponseHistory.get_count_question_by_user(user)
         return count_questions_history == count_questions_test
 
-    def get_statistic(self, user):
+    def get_statistics(self, user: settings.AUTH_USER_MODEL):
         @dataclass
-        class StatisticTest:
+        class StatisticsTest:
             user: settings.AUTH_USER_MODEL
             test: "Test"
             questions: QuerySet[Question]
@@ -49,7 +49,7 @@ class Test(models.Model):
                 correct_count += 1
         incorrect_count = questions.count() - correct_count
 
-        return StatisticTest(
+        return StatisticsTest(
             user=user,
             test=self,
             questions=questions,
