@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from . import models
+from training_service import models
 
 
 class AnswerChoiceSerializer(serializers.ModelSerializer):
@@ -74,3 +74,11 @@ class ResultQuestionSerializer(serializers.ModelSerializer):
 
     def get_correct(self, question):
         return question.is_correct()
+
+
+class StatisticSerializer(serializers.Serializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    test = serializers.PrimaryKeyRelatedField(read_only=True)
+    questions = ResultQuestionSerializer(many=True)
+    correct_count = serializers.IntegerField()
+    incorrect_count = serializers.IntegerField()

@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from . import models, serializers
-from .controllers import question_controller, statistic_controller
+from .controllers import question_controller
 
 
 class TopicView(viewsets.ViewSet):
@@ -25,7 +25,9 @@ class TestView(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         test = models.Test.get_by_id(id=pk)
         if test.is_passed(request.user):
-            return Response(statistic_controller(test, request.user))
+            return Response(
+                serializers.StatisticSerializer(test.get_statistic(request.user)).data
+            )
         return redirect("topic-detail", pk=test.topic.id)
 
 
