@@ -12,3 +12,6 @@ class Topic(models.Model):
     )
     publication_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
+
+    def __str__(self) -> str:
+        return self.title

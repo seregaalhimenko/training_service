@@ -18,6 +18,9 @@ class Test(models.Model):
     publication_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
 
+    def __str__(self) -> str:
+        return self.title
+
     @classmethod
     def get_by_id(cls, id: int) -> "Test":
         return get_object_or_404(cls, pk=id)

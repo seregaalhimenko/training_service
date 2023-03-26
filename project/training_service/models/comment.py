@@ -7,3 +7,6 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
     )
     text = models.TextField()
+
+    def __str__(self) -> str:
+        return self.text

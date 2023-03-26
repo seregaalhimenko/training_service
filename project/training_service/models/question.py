@@ -13,6 +13,9 @@ class Question(models.Model):
         related_name="questions",
     )
 
+    def __str__(self) -> str:
+        return self.text
+
     @classmethod
     def get_by_id(cls, id: int) -> "Question":
         return get_object_or_404(cls, pk=id)
@@ -21,6 +24,9 @@ class Question(models.Model):
         if self.answers.filter(correct=True).count() == 0:
             return False
         return True
+
+    def is_valid_question(self):
+        return self.answers.filter(correct=True).count() != 0
 
     @classmethod
     def get_valid_questions(cls, queryset) -> tuple["Question"]:
