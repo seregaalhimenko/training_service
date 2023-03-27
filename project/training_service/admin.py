@@ -72,11 +72,18 @@ class AnswerChoiceAdmin(admin.ModelAdmin):
 class ResponseHistoryAdmin(admin.ModelAdmin):
     list_display = [
         "get_user",
+        "get_test",
         "get_question",
+        "get_is_correct_question",
         "get_answer_choice",
         "get_answer_choice_correct",
+        "get_is_passed_test",
     ]
     list_filter = ["user"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs
 
     @admin.display(ordering="user", description="user")
     def get_user(self, obj):
@@ -93,6 +100,22 @@ class ResponseHistoryAdmin(admin.ModelAdmin):
     @admin.display(ordering="question", description="question")
     def get_question(self, obj):
         return obj.question
+
+    @admin.display(ordering="question", description="test")
+    def get_test(self, obj):
+        return obj.question.test
+
+    @admin.display(
+        boolean=True, ordering="question", description="was the test passed?"
+    )
+    def get_is_passed_test(self, obj):
+        return obj.question.test.is_passed(obj.user)
+
+    @admin.display(
+        boolean=True, ordering="question", description="is the question correct?"
+    )
+    def get_is_correct_question(self, obj):
+        return obj.question.is_correct(user=obj.user)
 
 
 admin.site.register(Topic)
