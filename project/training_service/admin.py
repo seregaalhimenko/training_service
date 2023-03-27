@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib import admin
-from django.core.exceptions import ValidationError
 
-from .config import EXCEPTION_CREATE_CORRECT_ANSWERS_FIRST_FOR_QUESTION
 from .models import AnswerChoice, Comment, Question, ResponseHistory, Test, Topic
 
 
@@ -12,9 +10,19 @@ class AnswerChoicForm(forms.ModelForm):
         fields = "__all__"
 
 
+class ChoiceInlineFormset(forms.models.BaseInlineFormSet):
+    def clean(self):
+        corrects = [x.cleaned_data.get("correct") for x in self.forms]
+        if not any(corrects):
+            raise forms.ValidationError(
+                message="There are no correct answers to this question, add the correct answer first."
+            )
+
+
 class ChoiceInline(admin.TabularInline):
     model = AnswerChoice
     form = AnswerChoicForm
+    formset = ChoiceInlineFormset
     extra = 1
 
 
@@ -36,16 +44,6 @@ class QuestionAdmin(admin.ModelAdmin):
     )
     def is_valid_question(self, obj):
         return obj.is_valid_question()
-
-    def save_related(self, request, form, formsets, change):
-        if EXCEPTION_CREATE_CORRECT_ANSWERS_FIRST_FOR_QUESTION:
-            answer_choice_formsets = formsets[0]
-            corrects = [x.get("correct") for x in answer_choice_formsets.cleaned_data]
-            if not any(corrects):
-                raise ValidationError(
-                    message="There are no correct answers to this question, add the correct answer first."
-                )
-        super().save_related(request, form, formsets, change)
 
 
 class QuestionInline(admin.TabularInline):
