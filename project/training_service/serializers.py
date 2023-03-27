@@ -69,16 +69,32 @@ class ResultQuestionSerializer(serializers.ModelSerializer):
         fields = ["id", "text", "correct", "answers", "response_answers"]
 
     def get_response_answers(self, question: models.Question) -> dict:
-        answers = [x.answer_choice for x in question.response_history.all()]
+        if not self.context.get("user"):
+            raise ValueError("In 'self.context' there should be 'user'")
+        answers = [
+            x.answer_choice
+            for x in question.response_history.filter(
+                user=self.context.get("user")
+            ).all()
+        ]
         return ResultAnswerSerializer(answers, many=True).data
 
     def get_correct(self, question: models.Question) -> bool:
-        return question.is_correct()
+        if not self.context.get("user"):
+            raise ValueError("In 'self.context' there should be 'user'")
+        return question.is_correct(user=self.context.get("user"))
 
 
 class StatisticsSerializer(serializers.Serializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
     test = serializers.PrimaryKeyRelatedField(read_only=True)
-    questions = ResultQuestionSerializer(many=True)
+    questions = serializers.SerializerMethodField()
     correct_count = serializers.IntegerField()
     incorrect_count = serializers.IntegerField()
+
+    def get_questions(self, instance) -> bool:
+        return ResultQuestionSerializer(
+            instance.questions,
+            many=True,
+            context={"user": instance.user},
+        ).data

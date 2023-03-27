@@ -57,16 +57,29 @@ class Question(models.Model):
 
     def is_correct(
         self,
+        *,
         request_answers: models.QuerySet[AnswerChoice] | None = None,
+        user=None,  # todo "settings.AUTH_USER_MODEL" | None = None
     ) -> bool:
+        if not user and not request_answers:
+            raise ValueError(
+                "If you do not specify 'request_answers', then you must specify 'user'"
+            )
+
         request_answers_correct_count = (
             request_answers.filter(correct=True).count()
             if request_answers
-            else self.response_history.filter(answer_choice__correct=True).count()
+            else self.response_history.filter(user=user)
+            .filter(answer_choice__correct=True)
+            .count()
         )
+
         request_answers_count = (
-            len(request_answers) if request_answers else self.response_history.count()
+            len(request_answers)
+            if request_answers
+            else self.response_history.filter(user=user).count()
         )
+        db_answers_correct_count = self.answers.filter(correct=True).count()
         db_answers_correct_count = self.answers.filter(correct=True).count()
 
         if (

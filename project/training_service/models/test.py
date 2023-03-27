@@ -48,7 +48,7 @@ class Test(models.Model):
         questions = self.questions.filter(response_history__user=user).distinct()
         correct_count = 0
         for question in questions:
-            if question.is_correct():
+            if question.is_correct(user=user):
                 correct_count += 1
         incorrect_count = questions.count() - correct_count
 

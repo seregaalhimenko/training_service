@@ -26,7 +26,7 @@ class QuestionController:
                 [user.email],
             )
 
-        if question.is_correct(request_answers):
+        if question.is_correct(request_answers=request_answers):
             return {"answer": True}
         comment = self.get_comment(question)
         return {"answer": False, "comment": comment}
@@ -113,7 +113,7 @@ question_controller = QuestionController()
 #     _next_state = CommentState
 
 #     def handle(self):
-#         if self.question.is_correct(self.request_answers):
+#         if self.question.is_correct(request_answers=self.request_answers):
 #             return {"answer": True}
 
 
