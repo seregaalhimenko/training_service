@@ -1,6 +1,6 @@
-from django.conf import settings
 from django.db import models
 from django.shortcuts import get_object_or_404
+from users.models import User
 
 from training_service.models import AnswerChoice, response_history
 
@@ -38,7 +38,7 @@ class Question(models.Model):
     def create_history(
         self,
         answer: "AnswerChoice",
-        user: settings.AUTH_USER_MODEL,
+        user: User,
     ):
         response_history.ResponseHistory(  # fix circular import
             user=user,
@@ -48,7 +48,7 @@ class Question(models.Model):
 
     def get_user_responses(
         self,
-        user: settings.AUTH_USER_MODEL,
+        user: User,
     ) -> models.QuerySet[response_history.ResponseHistory]:
         return self.response_history.filter(user=user)
 
@@ -59,7 +59,7 @@ class Question(models.Model):
         self,
         *,
         request_answers: models.QuerySet[AnswerChoice] | None = None,
-        user=None,  # todo "settings.AUTH_USER_MODEL" | None = None
+        user: User | None = None,
     ) -> bool:
         if not user and not request_answers:
             raise ValueError(
