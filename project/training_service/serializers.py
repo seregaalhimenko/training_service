@@ -1,3 +1,4 @@
+from drf_spectacular.utils import OpenApiTypes, extend_schema_field
 from rest_framework import serializers
 
 from training_service import models
@@ -68,6 +69,7 @@ class ResultQuestionSerializer(serializers.ModelSerializer):
         model = models.Question
         fields = ["id", "text", "correct", "answers", "response_answers"]
 
+    @extend_schema_field(ResultAnswerSerializer)
     def get_response_answers(self, question: models.Question) -> dict:
         if not self.context.get("user"):
             raise ValueError("In 'self.context' there should be 'user'")
@@ -79,6 +81,7 @@ class ResultQuestionSerializer(serializers.ModelSerializer):
         ]
         return ResultAnswerSerializer(answers, many=True).data
 
+    @extend_schema_field(OpenApiTypes.BOOL)
     def get_correct(self, question: models.Question) -> bool:
         if not self.context.get("user"):
             raise ValueError("In 'self.context' there should be 'user'")
@@ -86,12 +89,14 @@ class ResultQuestionSerializer(serializers.ModelSerializer):
 
 
 class StatisticsSerializer(serializers.Serializer):
+    # todo: user и test в схеме отображается, как str
     user = serializers.PrimaryKeyRelatedField(read_only=True)
     test = serializers.PrimaryKeyRelatedField(read_only=True)
     questions = serializers.SerializerMethodField()
     correct_count = serializers.IntegerField()
     incorrect_count = serializers.IntegerField()
 
+    @extend_schema_field(ResultQuestionSerializer)
     def get_questions(self, instance) -> bool:
         return ResultQuestionSerializer(
             instance.questions,

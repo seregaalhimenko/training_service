@@ -10,10 +10,10 @@ class QuestionController:
         question: models.Question = models.Question.get_by_id(question_id)
 
         if self.get_response_history(user, question):
-            return {"details": "you have already answered this question"}
+            return {"details": _("You have already answered this question")}
 
         if not question.check_correct_answers():
-            return {"answers": _("The question has no right answers")}
+            return {"details": _("The question has no right answers")}
 
         request_answers = question.get_answers_by_ids(data.get("ids"))
         self.create_answers_user(user, request_answers, question)
@@ -33,9 +33,9 @@ class QuestionController:
 
     def get_comment(self, question: models.Question) -> dict:
         try:
-            comment = question.comment
+            comment = question.comment  # todo: 404 Question has no comment.
         except models.Comment.DoesNotExist:
-            return {"details": "Not found."}
+            return {"details": _("Not found.")}
         return serializers.CommentSerializer(comment).data
 
     def get_response_history(
