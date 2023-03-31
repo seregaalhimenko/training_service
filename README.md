@@ -20,7 +20,7 @@
 
 ```python
 #Секретный ключ для конкретной установки Django. 
-#Используется для предоставления [криптографической подписи](https://docs.djangoproject.com/en/4.1/topics/signing/)
+#Используется для предоставления криптографической подписи
 #и должно быть установлено уникальное, непредсказуемое значение.
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
@@ -57,7 +57,7 @@ REST_FRAMEWORK = {
 	"PAGE_SIZE": 10,
 }
 
-#Настройки для [drf-spectacular](https://drf-spectacular.readthedocs.io/en/latest/index.html)
+#Настройки для drf-spectacular
 SPECTACULAR_SETTINGS = {
 	"TITLE": "Training service API",
 	"DESCRIPTION": "Your project description",
@@ -147,7 +147,7 @@ USE_I18N = True
 USE_TZ = True
 
 #URL-адрес для использования при обращении к статическим файлам, 
-#расположенным в [`STATIC_ROOT`](https://docs.djangoproject.com/en/4.1/ref/settings/#std-setting-STATIC_ROOT).
+#расположенным в `STATIC_ROOT`.
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
