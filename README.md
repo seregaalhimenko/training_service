@@ -167,5 +167,5 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 *Если используете Docker не забудьте изменить и файлы **Dockerfile, docker-compose.yml***
 ## Немного о приложении
 -   **Стек реализации: Python, Django, REST API, Postgres,Poetry;**
--   **Документация API  в Swagger (~/docs/schema/swagger-ui/) или Redoc (~/docs/schema/redoc/) ;**
+-   **Документация API  в Swagger (/docs/schema/swagger-ui/) или Redoc (/docs/schema/redoc/) ;**
 -   **Список всех зависимостей  храниться в pyproject.toml;**
