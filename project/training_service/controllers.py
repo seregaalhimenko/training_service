@@ -33,7 +33,7 @@ class QuestionController:
 
     def get_comment(self, question: models.Question) -> dict:
         try:
-            comment = question.comment  # todo: 404 Question has no comment.
+            comment = question.comment
         except models.Comment.DoesNotExist:
             return {"details": _("Not found.")}
         return serializers.CommentSerializer(comment).data

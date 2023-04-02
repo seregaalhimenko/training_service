@@ -9,6 +9,10 @@ from training_service.models import ResponseHistory
 from training_service.models.question import Question
 
 
+class NoPassedTestError(Exception):
+    pass
+
+
 class Test(models.Model):
     title = models.CharField(max_length=200)
     topic = models.OneToOneField(
@@ -32,6 +36,9 @@ class Test(models.Model):
         return count_questions_history == count_questions_test
 
     def get_statistics(self, user: settings.AUTH_USER_MODEL):
+        if not self.is_passed(user):
+            raise NoPassedTestError
+
         @dataclass
         class StatisticsTest:
             user: settings.AUTH_USER_MODEL

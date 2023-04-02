@@ -20,12 +20,12 @@ class Question(models.Model):
     def get_by_id(cls, id: int) -> "Question":
         return get_object_or_404(cls, pk=id)
 
-    def check_correct_answers(self) -> bool:
-        if self.answers.filter(correct=True).count() == 0:
-            return False
-        return True
+    def check_correct_answers(
+        self,
+    ) -> bool:  # todo: is_valid_question это одно и тоже убрать и заменить
+        return self.is_valid()
 
-    def is_valid_question(self):
+    def is_valid(self):
         return self.answers.filter(correct=True).count() != 0
 
     @classmethod
