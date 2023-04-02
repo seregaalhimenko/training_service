@@ -143,7 +143,7 @@ question_controller = QuestionController()
 #     _next_state = AddResponeHistoryState
 
 #     def handle(self):
-#         if not self.question.check_correct_answers():
+#         if not self.question.is_valid():
 #             return {"answers": _("The question has no right answers")}
 #         return None
 

@@ -25,7 +25,7 @@ class Question(models.Model):
 
     @classmethod
     def get_valid_questions(cls, queryset) -> tuple["Question"]:
-        return tuple(filter(lambda x: x.check_correct_answers(), queryset))
+        return tuple(filter(lambda x: x.is_valid(), queryset))
 
     def get_answers_by_ids(self, ids: list[int]) -> models.QuerySet[AnswerChoice]:
         return self.answers.filter(pk__in=ids)
