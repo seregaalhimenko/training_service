@@ -8,11 +8,11 @@ from . import models, serializers
 class QuestionController:
     def __call__(self, data, user: settings.AUTH_USER_MODEL, question_id: int):
         question: models.Question = models.Question.get_by_id(question_id)
-
+        # todo: проверка на пустой ответ
         if self.get_response_history(user, question):
             return {"details": _("You have already answered this question")}
 
-        if not question.check_correct_answers():
+        if not question.is_valid():
             return {"details": _("The question has no right answers")}
 
         request_answers = question.get_answers_by_ids(data.get("ids"))
