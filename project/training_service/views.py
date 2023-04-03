@@ -45,14 +45,14 @@ class TestView(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     @extend_schema(
-        responses={200: serializers.StatisticsSerializer, 301: None},
+        responses={200: serializers.StatisticsSerializer, 302: None},
         parameters=[
             OpenApiParameter(
                 name="Location",
                 type=OpenApiTypes.URI,
                 location=OpenApiParameter.HEADER,
                 description=r"/api/topics/{id}/",
-                response=[301],
+                response=[302],
             ),
             OpenApiParameter(
                 "id",
