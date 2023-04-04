@@ -4,8 +4,7 @@ settings.py
 
 #Finder
 .DS_Store
-# Poetry #
-poetry.lock
+
 
 # Django #
 *.log
