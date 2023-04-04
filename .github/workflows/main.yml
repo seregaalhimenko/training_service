@@ -9,6 +9,7 @@ jobs:
   run_tests:
     runs-on: ubuntu-latest
     env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       POSTGRES_HOST: localhost
       POSTGRES_NAME: postgres
