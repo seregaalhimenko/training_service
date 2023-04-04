@@ -1,5 +1,6 @@
 import uuid
 from collections import OrderedDict
+from datetime import datetime
 
 from django.urls import reverse
 from rest_framework import status
@@ -50,8 +51,8 @@ class TestShortTopic(APITestCase):
                 "test": None,
                 "title": "Topic title",
                 "theory": "Topic theory",
-                "publication_date": "2023-04-03",
-                "update_date": "2023-04-03",
+                "publication_date": f"{datetime.now().date()}",
+                "update_date": f"{datetime.now().date()}",
                 "owner": 1,
             },
         )
@@ -66,8 +67,8 @@ class TestShortTopic(APITestCase):
                 "test": None,
                 "title": "Topic title 2",
                 "theory": "Topic theory 2",
-                "publication_date": "2023-04-03",
-                "update_date": "2023-04-03",
+                "publication_date": f"{datetime.now().date()}",
+                "update_date": f"{datetime.now().date()}",
                 "owner": 1,
             },
         )
@@ -126,14 +127,14 @@ class TestTopic(base.BaseTestAPI):
                             ],
                         ),
                         ("title", "Test title"),
-                        ("publication_date", "2023-04-03"),
-                        ("update_date", "2023-04-03"),
+                        ("publication_date", f"{datetime.now().date()}"),
+                        ("update_date", f"{datetime.now().date()}"),
                     ]
                 ),
                 "title": "Topic title",
                 "theory": "Topic theory",
-                "publication_date": "2023-04-03",
-                "update_date": "2023-04-03",
+                "publication_date": f"{datetime.now().date()}",
+                "update_date": f"{datetime.now().date()}",
                 "owner": 1,
             },
         )
