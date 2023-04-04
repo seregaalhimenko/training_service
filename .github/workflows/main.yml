@@ -1,0 +1,82 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_NAME: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PORT: 5432
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_NAME: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PORT: 5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      # Чекаутим код
+      - uses: actions/checkout@master
+      # Устанавливаем python нужной версии
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.10'
+          architecture: 'x64'
+      - name: Install poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: |  
+          poetry config virtualenvs.create false 
+          poetry install --no-dev --no-interaction --no-ansi
+      - name: Change setting file
+        run: |
+          mv project/template_settings.py project/settings.py 
+          echo "EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'" >> project/settings.py
+        working-directory: ./project
+      - name: Create migrations
+        run: python manage.py migrate
+        working-directory: ./project
+      - name: Run tests
+        run: coverage run --source='.' manage.py test training_service
+        working-directory: ./project
+      - name: Tests report
+        run: coverage report
+        working-directory: ./project
+      
+
+  build_and_pub:
+    needs: [run_tests]
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/training_service:latest
