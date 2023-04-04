@@ -89,7 +89,7 @@ class Test(Base):
         )
         self.assertEqual(
             question_controller.get_comment(self.question),
-            {"id": 1, "text": "text", "question": 1},
+            {"id": comment.id, "text": "text", "question": comment.question.id},
         )
 
     def test_get_response_history(self):

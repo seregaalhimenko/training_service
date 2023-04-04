@@ -25,7 +25,11 @@ class Test(base.BaseTestAPI):
 
     def test_set_answer_false_correct_no_comments(self):
         url = reverse("question-set-answer", kwargs={"pk": self.question.id})
-        data = {"ids": [1, 2]}
+        data = {
+            "ids": [
+                self.answer_choices[self.question][False].id,
+            ]
+        }
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -38,7 +42,11 @@ class Test(base.BaseTestAPI):
             text="Coment text", question=self.question
         )
         url = reverse("question-set-answer", kwargs={"pk": self.question.id})
-        data = {"ids": [1, 2]}
+        data = {
+            "ids": [
+                self.answer_choices[self.question][False].id,
+            ]
+        }
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -56,7 +64,11 @@ class Test(base.BaseTestAPI):
     def test_set_answer_true_correct(self):
         models.Comment.objects.create(text="Coment text", question=self.question)
         url = reverse("question-set-answer", kwargs={"pk": self.question.id})
-        data = {"ids": [1, 4]}
+        data = {
+            "ids": [
+                self.answer_choices[self.question][True].id,
+            ]
+        }
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {"answer": True})
