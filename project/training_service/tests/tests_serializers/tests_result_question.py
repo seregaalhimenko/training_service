@@ -34,14 +34,19 @@ class Test(base.Base):
                 context={"user": self.user_2},
             ).data,
             {
-                "id": 1,
+                "id": self.question.id,
                 "text": "Question text",
                 "correct": True,
                 "answers": serializers.ResultAnswerSerializer(
                     self.question.answers.all(), many=True
                 ).data,
                 "response_answers": serializers.ResultAnswerSerializer(
-                    self.question.response_answers.get(user=self.user).answer_choice,
+                    [
+                        self.question.response_history.get(
+                            user=self.user_2
+                        ).answer_choice
+                    ],
+                    many=True,
                 ).data,
             },
         )

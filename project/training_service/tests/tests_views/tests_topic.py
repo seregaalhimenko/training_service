@@ -62,7 +62,7 @@ class TestShortTopic(APITestCase):
         self.assertEqual(
             response.data,
             {
-                "id": self.topic.id,
+                "id": self.topic_2.id,
                 "test": None,
                 "title": "Topic title 2",
                 "theory": "Topic theory 2",
