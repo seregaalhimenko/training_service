@@ -34,7 +34,7 @@ jobs:
       # Чекаутим код
       - uses: actions/checkout@master
       # Устанавливаем python нужной версии
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
           architecture: 'x64'
