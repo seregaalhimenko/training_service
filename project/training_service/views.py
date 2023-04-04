@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect
 from drf_spectacular.utils import (
     OpenApiExample,
@@ -141,4 +142,6 @@ class QuestionView(viewsets.ViewSet):
     )
     @action(detail=True, methods=["post"])
     def set_answer(self, request, pk: int):
+        if not request.data.get("ids"):
+            raise ValidationError("there is no data in ids")
         return Response(question_controller(request.data, request.user, pk))
