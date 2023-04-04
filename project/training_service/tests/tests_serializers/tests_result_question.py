@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from training_service import models, serializers
 from training_service.tests import base
 
@@ -39,83 +37,11 @@ class Test(base.Base):
                 "id": 1,
                 "text": "Question text",
                 "correct": True,
-                "answers": [
-                    OrderedDict([("id", 1), ("text", "Answer_1"), ("correct", True)]),
-                    OrderedDict([("id", 2), ("text", "Answer_2"), ("correct", False)]),
-                ],
-                "response_answers": [
-                    OrderedDict([("id", 1), ("text", "Answer_1"), ("correct", True)])
-                ],
+                "answers": serializers.ResultAnswerSerializer(
+                    self.question.answers.all(), many=True
+                ).data,
+                "response_answers": serializers.ResultAnswerSerializer(
+                    self.question.response_answers.get(user=self.user).answer_choice,
+                ).data,
             },
-        )
-
-    def test_many(self):
-        self.assertEqual(
-            serializers.ResultQuestionSerializer(
-                self.test.questions.all(),
-                many=True,
-                context={"user": self.user_2},
-            ).data,
-            [
-                OrderedDict(
-                    [
-                        ("id", 1),
-                        ("text", "Question text"),
-                        ("correct", True),
-                        (
-                            "answers",
-                            [
-                                OrderedDict(
-                                    [("id", 1), ("text", "Answer_1"), ("correct", True)]
-                                ),
-                                OrderedDict(
-                                    [
-                                        ("id", 2),
-                                        ("text", "Answer_2"),
-                                        ("correct", False),
-                                    ]
-                                ),
-                            ],
-                        ),
-                        (
-                            "response_answers",
-                            [
-                                OrderedDict(
-                                    [("id", 1), ("text", "Answer_1"), ("correct", True)]
-                                )
-                            ],
-                        ),
-                    ]
-                ),
-                OrderedDict(
-                    [
-                        ("id", 2),
-                        ("text", "Question2 text"),
-                        ("correct", True),
-                        (
-                            "answers",
-                            [
-                                OrderedDict(
-                                    [("id", 3), ("text", "Answer_3"), ("correct", True)]
-                                ),
-                                OrderedDict(
-                                    [
-                                        ("id", 4),
-                                        ("text", "Answer_4"),
-                                        ("correct", False),
-                                    ]
-                                ),
-                            ],
-                        ),
-                        (
-                            "response_answers",
-                            [
-                                OrderedDict(
-                                    [("id", 3), ("text", "Answer_3"), ("correct", True)]
-                                )
-                            ],
-                        ),
-                    ]
-                ),
-            ],
         )

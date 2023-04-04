@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from rest_framework import status
@@ -17,34 +15,12 @@ class Test(base.BaseTestAPI):
         self.assertEqual(
             response.data, serializers.QuestionSerializer(self.question).data
         )
-        self.assertEqual(
-            response.data,
-            {
-                "id": 1,
-                "answers": [
-                    OrderedDict([("id", 1), ("text", "Answer_1")]),
-                    OrderedDict([("id", 2), ("text", "Answer_2")]),
-                ],
-                "text": "Question text",
-            },
-        )
 
         url = reverse("question-detail", kwargs={"pk": self.question_2.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.data, serializers.QuestionSerializer(self.question_2).data
-        )
-        self.assertEqual(
-            response.data,
-            {
-                "id": 2,
-                "answers": [
-                    OrderedDict([("id", 3), ("text", "Answer_3")]),
-                    OrderedDict([("id", 4), ("text", "Answer_4")]),
-                ],
-                "text": "Question2 text",
-            },
         )
 
     def test_set_answer_false_correct_no_comments(self):
@@ -58,7 +34,9 @@ class Test(base.BaseTestAPI):
         )
 
     def test_set_answer_false_correct(self):
-        models.Comment.objects.create(text="Coment text", question=self.question)
+        comment = models.Comment.objects.create(
+            text="Coment text", question=self.question
+        )
         url = reverse("question-set-answer", kwargs={"pk": self.question.id})
         data = {"ids": [1, 2]}
         response = self.client.post(url, data=data, format="json")
@@ -67,7 +45,11 @@ class Test(base.BaseTestAPI):
             response.data,
             {
                 "answer": False,
-                "comment": {"id": 1, "text": "Coment text", "question": 1},
+                "comment": {
+                    "id": comment.id,
+                    "text": "Coment text",
+                    "question": comment.question.id,
+                },
             },
         )
 

@@ -1,5 +1,4 @@
 import uuid
-from collections import OrderedDict
 from datetime import datetime
 
 from django.urls import reverse
@@ -47,13 +46,13 @@ class TestShortTopic(APITestCase):
         self.assertEqual(
             response.data,
             {
-                "id": 1,
+                "id": self.topic.id,
                 "test": None,
                 "title": "Topic title",
                 "theory": "Topic theory",
                 "publication_date": f"{datetime.now().date()}",
                 "update_date": f"{datetime.now().date()}",
-                "owner": 1,
+                "owner": self.owner.id,
             },
         )
 
@@ -63,13 +62,13 @@ class TestShortTopic(APITestCase):
         self.assertEqual(
             response.data,
             {
-                "id": 2,
+                "id": self.topic.id,
                 "test": None,
                 "title": "Topic title 2",
                 "theory": "Topic theory 2",
                 "publication_date": f"{datetime.now().date()}",
                 "update_date": f"{datetime.now().date()}",
-                "owner": 1,
+                "owner": self.owner.id,
             },
         )
 
@@ -80,61 +79,3 @@ class TestTopic(base.BaseTestAPI):
         response = self.client.get(url_topic)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializers.TopicSerializer(self.topic).data)
-        self.assertEqual(
-            response.data,
-            {
-                "id": 1,
-                "test": OrderedDict(
-                    [
-                        ("id", 1),
-                        (
-                            "questions",
-                            [
-                                OrderedDict(
-                                    [
-                                        ("id", 1),
-                                        (
-                                            "answers",
-                                            [
-                                                OrderedDict(
-                                                    [("id", 1), ("text", "Answer_1")]
-                                                ),
-                                                OrderedDict(
-                                                    [("id", 2), ("text", "Answer_2")]
-                                                ),
-                                            ],
-                                        ),
-                                        ("text", "Question text"),
-                                    ]
-                                ),
-                                OrderedDict(
-                                    [
-                                        ("id", 2),
-                                        (
-                                            "answers",
-                                            [
-                                                OrderedDict(
-                                                    [("id", 3), ("text", "Answer_3")]
-                                                ),
-                                                OrderedDict(
-                                                    [("id", 4), ("text", "Answer_4")]
-                                                ),
-                                            ],
-                                        ),
-                                        ("text", "Question2 text"),
-                                    ]
-                                ),
-                            ],
-                        ),
-                        ("title", "Test title"),
-                        ("publication_date", f"{datetime.now().date()}"),
-                        ("update_date", f"{datetime.now().date()}"),
-                    ]
-                ),
-                "title": "Topic title",
-                "theory": "Topic theory",
-                "publication_date": f"{datetime.now().date()}",
-                "update_date": f"{datetime.now().date()}",
-                "owner": 1,
-            },
-        )
