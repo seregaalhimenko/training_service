@@ -47,6 +47,11 @@ class Test(models.Model):
             correct_count: int
             incorrect_count: int
 
+            def __str__(self) -> str:
+                return f"Увожаемый {self.user.email}.Тест {self.test.title} пройден.\n \
+                правильных ответов на вопрос:{self.correct_count}\n  \
+                не правильных ответов на вопрос:{self.incorrect_count}\n"
+
         questions = self.questions.filter(response_history__user=user).distinct()
         correct_count = 0
         for question in questions:
