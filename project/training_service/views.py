@@ -38,12 +38,7 @@ class TopicView(viewsets.ViewSet):
         ],
     )
     def retrieve(self, request, pk: int):
-        topic = (  # todo: убрать запрос из представления
-            models.Topic.objects.select_related("test")
-            .prefetch_related("test__questions")
-            .prefetch_related("test__questions__answers")
-            .get(pk=pk)
-        )
+        topic = models.Topic.get_by_id(id=pk)
         return Response(serializers.TopicSerializer(topic).data)
 
 
