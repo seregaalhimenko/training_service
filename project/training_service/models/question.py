@@ -18,7 +18,7 @@ class Question(models.Model):
 
     @classmethod
     def get_by_id(cls, id: int) -> "Question":
-        return get_object_or_404(cls, pk=id)
+        return get_object_or_404(cls.objects.prefetch_related("answers"), pk=id)
 
     def is_valid(self):
         return self.answers.filter(correct=True).count() != 0
