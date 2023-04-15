@@ -6,10 +6,12 @@ from drf_spectacular.utils import (
     OpenApiResponse,
     OpenApiTypes,
     extend_schema,
+    inline_serializer,
 )
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.serializers import IntegerField, ListField
 
 from training_service.models.test import NoPassedTestError
 
@@ -119,26 +121,15 @@ class QuestionView(viewsets.ViewSet):
                 ],
             )
         },
+        request=inline_serializer(
+            name="ids", fields={"ids": ListField(child=IntegerField(min_value=1))}
+        ),
         parameters=[
             OpenApiParameter(
                 "id",
                 description="Question id",
                 required=True,
                 location=OpenApiParameter.PATH,
-            ),
-            OpenApiParameter(
-                description="Array of response ids",
-                required=True,
-                name="ids",
-                location=OpenApiParameter.QUERY,
-                type=OpenApiTypes.OBJECT,
-                examples=[
-                    OpenApiExample(
-                        "Example 1",
-                        summary="short optional summary",
-                        value={"ids": [1, 2, 3]},
-                    ),
-                ],
             ),
         ],
         description="Send an answer to the question",
