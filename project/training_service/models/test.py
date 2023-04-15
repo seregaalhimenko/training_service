@@ -31,7 +31,7 @@ class Test(models.Model):
 
     def is_passed(self, user: settings.AUTH_USER_MODEL) -> bool:
         questions_test = self.questions.all()
-        count_questions_test = len(Question.get_valid_questions(questions_test))
+        count_questions_test = Question.get_count_valid_questions(questions_test)
         count_questions_history = ResponseHistory.get_count_question_by_user(user)
         return count_questions_history == count_questions_test
 
@@ -52,7 +52,9 @@ class Test(models.Model):
                 правильных ответов на вопрос:{self.correct_count}\n  \
                 не правильных ответов на вопрос:{self.incorrect_count}\n"
 
-        questions = self.questions.filter(response_history__user=user).distinct()
+        questions: QuerySet[Question] = self.questions.filter(
+            response_history__user=user
+        ).distinct()
         correct_count = 0
         for question in questions:
             if question.is_correct(user=user):

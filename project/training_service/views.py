@@ -11,6 +11,8 @@ from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from training_service.models.test import NoPassedTestError
+
 from . import models, serializers
 from .controllers import question_controller
 
@@ -66,11 +68,12 @@ class TestView(viewsets.ViewSet):
     )
     def retrieve(self, request, pk: int):
         test = models.Test.get_by_id(id=pk)
-        if test.is_passed(request.user):
+        try:
             return Response(
                 serializers.StatisticsSerializer(test.get_statistics(request.user)).data
             )
-        return redirect("topic-detail", pk=test.topic.id)
+        except NoPassedTestError:
+            return redirect("topic-detail", pk=test.topic.id)
 
 
 class QuestionView(viewsets.ViewSet):
