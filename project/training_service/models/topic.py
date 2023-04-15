@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.shortcuts import get_object_or_404
 
 
 class Topic(models.Model):
@@ -12,6 +13,15 @@ class Topic(models.Model):
     )
     publication_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
+
+    @classmethod
+    def get_by_id(cls, id: int) -> "Topic":
+        topic = (
+            cls.objects.select_related("test")
+            .prefetch_related("test__questions")
+            .prefetch_related("test__questions__answers")
+        )
+        return get_object_or_404(topic, pk=id)
 
     def __str__(self) -> str:
         return self.title
