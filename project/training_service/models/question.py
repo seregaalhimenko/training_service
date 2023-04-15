@@ -27,6 +27,18 @@ class Question(models.Model):
     def get_valid_questions(cls, queryset) -> tuple["Question"]:
         return tuple(filter(lambda x: x.is_valid(), queryset))
 
+    @classmethod
+    def get_count_valid_questions(cls, queryset: models.QuerySet) -> tuple["Question"]:
+        return (
+            queryset.annotate(
+                coont_correct_answers=models.Count(
+                    "answers", filter=models.Q(answers__correct=True)
+                )
+            )
+            .filter(coont_correct_answers__gt=0)
+            .count()
+        )
+
     def get_answers_by_ids(self, ids: list[int]) -> models.QuerySet[AnswerChoice]:
         return self.answers.filter(pk__in=ids)
 
@@ -74,7 +86,6 @@ class Question(models.Model):
             if request_answers
             else self.response_history.filter(user=user).count()
         )
-        db_answers_correct_count = self.answers.filter(correct=True).count()
         db_answers_correct_count = self.answers.filter(correct=True).count()
 
         if (
