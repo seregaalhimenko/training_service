@@ -62,6 +62,59 @@ class Question(models.Model):
     def get_answers(self) -> models.QuerySet[AnswerChoice]:
         return self.answers.all()
 
+    def __get_request_answers_correct_count_for_user(self, user: User):
+        return (
+            self.response_history.filter(user=user)
+            .filter(answer_choice__correct=True)
+            .count()
+        )
+
+    def __get_request_answers_correct_count_for_request_answers(
+        self, request_answers: models.QuerySet[AnswerChoice]
+    ):
+        return request_answers.filter(correct=True).count()
+
+    def __get_request_answers_count_for_request_answers(
+        self, request_answers: models.QuerySet[AnswerChoice]
+    ):
+        return len(request_answers)
+
+    def __get_request_answers_count_for_user(self, user: User):
+        return self.response_history.filter(user=user).count()
+
+    def __comparison_to_determine_correct_answer(
+        self, request_answers_correct_count, request_answers_count
+    ):
+        db_answers_correct_count = self.answers.filter(correct=True).count()
+
+        return (
+            request_answers_correct_count,
+            request_answers_count - request_answers_correct_count,
+        ) == (db_answers_correct_count, 0)
+
+    def is_correct_for_user(self, user):
+        request_answers_correct_count = (
+            self.__get_request_answers_correct_count_for_user(user)
+        )
+        request_answers_count = self.__get_request_answers_count_for_user(user)
+
+        return self.__comparison_to_determine_correct_answer(
+            request_answers_correct_count, request_answers_count
+        )
+
+    def is_correct_for_request_answers(self, request_answers):
+        request_answers_correct_count = (
+            self.__get_request_answers_correct_count_for_request_answers(
+                request_answers
+            )
+        )
+        request_answers_count = self.__get_request_answers_count_for_request_answers(
+            request_answers
+        )
+        return self.__comparison_to_determine_correct_answer(
+            request_answers_correct_count, request_answers_count
+        )
+
     def is_correct(
         self,
         *,
@@ -72,25 +125,6 @@ class Question(models.Model):
             raise ValueError(
                 "If you do not specify 'request_answers', then you must specify 'user'"
             )
-
-        request_answers_correct_count = (
-            request_answers.filter(correct=True).count()
-            if request_answers
-            else self.response_history.filter(user=user)
-            .filter(answer_choice__correct=True)
-            .count()
-        )
-
-        request_answers_count = (
-            len(request_answers)
-            if request_answers
-            else self.response_history.filter(user=user).count()
-        )
-        db_answers_correct_count = self.answers.filter(correct=True).count()
-
-        if (
-            request_answers_correct_count,
-            request_answers_count - request_answers_correct_count,
-        ) == (db_answers_correct_count, 0):
-            return True
-        return False
+        if user:
+            return self.is_correct_for_user(user)
+        return self.is_correct_for_request_answers(request_answers)
